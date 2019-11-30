@@ -1,0 +1,5 @@
+debug/
+release/
+Make*
+.vscode
+mifare_classic.pro.user
