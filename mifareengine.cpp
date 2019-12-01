@@ -228,6 +228,9 @@ bool MifareEngine::read_block(uint8_t block)
         qDebug() << "[READ] No Tag to read";
     }
 
+    if (!result_status)
+        mifare_engine_status = MIFARE_ENG_ERROR
+
     return result_status;
 }
 
@@ -266,6 +269,9 @@ bool MifareEngine::write_block_str(QString value, uint8_t block)
         qDebug() << "[WRITE] No Tag to write";
     }
 
+    if (!result_status)
+        mifare_engine_status = MIFARE_ENG_ERROR
+
     return result_status;
 }
 
@@ -291,6 +297,9 @@ bool MifareEngine::write_block_int(uint8_t value, uint8_t block)
     }
     else
         qDebug() << "[WRITE] No Tag to write";
+
+    if (!result_status)
+        mifare_engine_status = MIFARE_ENG_ERROR
 
     return result_status;
 }
@@ -368,6 +377,9 @@ bool MifareEngine::read_cpt(QString& cpt_value)
         read_success = true;
     }
 
+    if (!read_success)
+        mifare_engine_status = MIFARE_ENG_ERROR
+
     return read_success;
 }
 
@@ -379,8 +391,13 @@ bool MifareEngine::increment_cpt()
 
     if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
     {
-        Mf_Classic_Increment_Value(&reader, true, 14, 1, 13, auth_KeyD, 1);
-        Mf_Classic_Restore_Value(&reader, true, 13, 14, auth_KeyD, 1);
+        bool increment_status = false;
+
+        increment_status = increment_status && (Mf_Classic_Increment_Value(&reader, true, 14, 1, 13, auth_KeyD, 1) == MI_OK);
+        increment_status = increment_status && (Mf_Classic_Restore_Value(&reader, true, 13, 14, auth_KeyD, 1) == MI_OK);
+
+        if(!increment_status)
+            mifare_engine_status == MIFARE_ENG_ERROR
     }
 
     return mifare_engine_status == MIFARE_ENG_CONNECTED_READY;
@@ -394,8 +411,13 @@ bool MifareEngine::decrement_cpt()
 
     if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
     {
-        Mf_Classic_Decrement_Value(&reader, true, 14, 1, 13, auth_KeyD, 1);
-        Mf_Classic_Restore_Value(&reader, true, 13, 14, auth_KeyD, 1);
+        bool decrement_status = false;
+
+        decrement_status = decrement_status && (Mf_Classic_Decrement_Value(&reader, true, 14, 1, 13, auth_KeyD, 1) == MI_OK);
+        decrement_status = decrement_status && (Mf_Classic_Restore_Value(&reader, true, 13, 14, auth_KeyD, 1) == MI_OK);
+
+        if(!decrement_status)
+            mifare_engine_status == MIFARE_ENG_ERROR
     }
 
     return mifare_engine_status == MIFARE_ENG_CONNECTED_READY;
@@ -430,6 +452,9 @@ bool MifareEngine::format()
         // Définition des rèlges par défaut pour le secteur 3
         if(Mf_Classic_UpdadeAccessBlock(&reader, true, 3, 0, key_ff, key_ff, 0b000, 0b000, 0b000, 0b000, false) != MI_OK)
             res = false;
+
+        if(!res)
+            mifare_engine_status == MIFARE_ENG_ERROR
     }
 
     return  res;
