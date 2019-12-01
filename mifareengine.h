@@ -48,20 +48,19 @@ public:
     ~MifareEngine();
     void init();
     bool enrol();
+    bool format();
 
     int get_mifare_engine_status();
 
     bool read_cpt(QString& cpt_value);
+    bool increment_cpt();
+    bool decrement_cpt();
 
     bool get_lastname(QString& lastname);
     bool get_firstname(QString& firstname);
 
     bool set_lastname(QString lastname);
     bool set_firstname(QString firstname);
-    
-    bool increment_cpt();
-    bool decrement_cpt();
-    bool format();
 };
 
 #endif // MIFAREENGINE_H

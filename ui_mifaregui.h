@@ -41,8 +41,9 @@ public:
     QVBoxLayout *verticalLayout_4;
     QSpacerItem *verticalSpacer;
     QHBoxLayout *horizontalLayout_4;
-    QPushButton *formatButton;
+    QPushButton *connectButton;
     QPushButton *enrolButton;
+    QPushButton *formatButton;
     QSpacerItem *verticalSpacer_2;
     QFrame *line_3;
     QVBoxLayout *verticalLayout_5;
@@ -137,15 +138,20 @@ public:
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setSpacing(6);
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
-        formatButton = new QPushButton(horizontalLayoutWidget);
-        formatButton->setObjectName(QString::fromUtf8("formatButton"));
+        connectButton = new QPushButton(horizontalLayoutWidget);
+        connectButton->setObjectName(QString::fromUtf8("connectButton"));
 
-        horizontalLayout_4->addWidget(formatButton);
+        horizontalLayout_4->addWidget(connectButton);
 
         enrolButton = new QPushButton(horizontalLayoutWidget);
         enrolButton->setObjectName(QString::fromUtf8("enrolButton"));
 
         horizontalLayout_4->addWidget(enrolButton);
+
+        formatButton = new QPushButton(horizontalLayoutWidget);
+        formatButton->setObjectName(QString::fromUtf8("formatButton"));
+
+        horizontalLayout_4->addWidget(formatButton);
 
 
         verticalLayout_4->addLayout(horizontalLayout_4);
@@ -277,10 +283,11 @@ public:
         label_8->setText(QApplication::translate("MifareGUI", "Informations personnelles", nullptr));
         LastnameLabel->setText(QApplication::translate("MifareGUI", "Nom :", nullptr));
         FirstnameLabel->setText(QApplication::translate("MifareGUI", "Pr\303\251nom :", nullptr));
-        refreshButton->setText(QApplication::translate("MifareGUI", "Refresh", nullptr));
+        refreshButton->setText(QApplication::translate("MifareGUI", "Actualiser", nullptr));
         label_6->setText(QString());
-        formatButton->setText(QApplication::translate("MifareGUI", "Formater", nullptr));
+        connectButton->setText(QApplication::translate("MifareGUI", "Connexion", nullptr));
         enrolButton->setText(QApplication::translate("MifareGUI", "Enr\303\264ler", nullptr));
+        formatButton->setText(QApplication::translate("MifareGUI", "Formater", nullptr));
         IncrementValueLabel->setText(QApplication::translate("MifareGUI", "0", nullptr));
         incrementButton->setText(QApplication::translate("MifareGUI", "+", nullptr));
         decrementButton->setText(QApplication::translate("MifareGUI", "-", nullptr));

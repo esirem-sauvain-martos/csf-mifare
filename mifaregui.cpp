@@ -54,7 +54,7 @@ void MifareGUI::on_connectButton_clicked()
 void MifareGUI::on_enrolButton_clicked()
 {
     log("Enroling...");
-    mifare_engine->init();
+    mifare_engine->enrol();
     if(mifare_engine->get_mifare_engine_status() == MIFARE_ENG_CONNECTED_READY)
         log("Enroled !");
     else
