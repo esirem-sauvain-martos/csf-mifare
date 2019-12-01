@@ -28,16 +28,22 @@ MifareEngine::~MifareEngine()
 void MifareEngine::init()
 {
     status = OpenCOM1(&reader);
+    LEDBuzzer(&reader, LED_OFF);
+
     if (status != MI_OK)
     {
         qDebug("Reader not found");
         mifare_engine_status = MIFARE_ENG_NO_READER;
         done();
+        LEDBuzzer(&reader, LED_RED_ON);
     }
     else // Lecteur OK
     {
+        LEDBuzzer(&reader, LED_YELLOW_ON);
+
         // Loading keys
         // Key A
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
         status = Mf_Classic_LoadKey(&reader, auth_KeyA, key_A, 0);
         if (status != MI_OK)
         {
@@ -46,8 +52,10 @@ void MifareEngine::init()
             close();
             return;
         }
+        LEDBuzzer(&reader, LED_YELLOW_ON);
 
         // Key B
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
         status = Mf_Classic_LoadKey(&reader, auth_KeyB, key_B, 0);
         if (status != MI_OK)
         {
@@ -56,8 +64,10 @@ void MifareEngine::init()
             close();
             return;
         }
+        LEDBuzzer(&reader, LED_YELLOW_ON);
 
         // Key C
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
         status = Mf_Classic_LoadKey(&reader, auth_KeyC, key_C, 1);
         if (status != MI_OK)
         {
@@ -66,8 +76,10 @@ void MifareEngine::init()
             close();
             return;
         }
+        LEDBuzzer(&reader, LED_YELLOW_ON);
 
         // Key D
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
         status = Mf_Classic_LoadKey(&reader, auth_KeyD, key_D, 1);
         if (status != MI_OK)
         {
@@ -76,8 +88,10 @@ void MifareEngine::init()
             close();
             return;
         }
+        LEDBuzzer(&reader, LED_YELLOW_ON);
 
         // Key FF
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
         status = Mf_Classic_LoadKey(&reader, true, key_ff, 2);
         if (status != MI_OK)
         {
@@ -86,8 +100,10 @@ void MifareEngine::init()
             close();
             return;
         }
+        LEDBuzzer(&reader, LED_YELLOW_ON);
 
         // Key FF
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
         status = Mf_Classic_LoadKey(&reader, false, key_ff, 2);
         if (status != MI_OK)
         {
@@ -96,6 +112,7 @@ void MifareEngine::init()
             close();
             return;
         }
+        LEDBuzzer(&reader, LED_YELLOW_ON);
 
         // Alimentation
         RF_Power_Control(&reader, true, 0);
@@ -107,6 +124,7 @@ void MifareEngine::init()
         {
             qDebug() << "No tag";
             mifare_engine_status = MIFARE_ENG_NO_TAG;
+            LEDBuzzer(&reader, LED_RED_ON);
             close();
             return;
         }
@@ -130,6 +148,8 @@ void MifareEngine::init()
                 qDebug() << "Tag appears to be a Mifare classic 4k";
             }
             mifare_engine_status = MIFARE_ENG_CONNECTED_READY;
+            LEDBuzzer(&reader, LED_OFF);
+            LEDBuzzer(&reader, LED_GREEN_ON);
         }
     }
 }
@@ -172,10 +192,14 @@ void MifareEngine::tag_halt()
         qDebug() << "Failed to halt the tag";
         mifare_engine_status = MIFARE_ENG_ERROR;
         done();
+        LEDBuzzer(&reader, LED_OFF);
+        LEDBuzzer(&reader, LED_RED_ON);
     }
     else
     {
         mifare_engine_status = MIFARE_ENG_HALT;
+        LEDBuzzer(&reader, LED_OFF);
+        LEDBuzzer(&reader, LED_YELLOW_ON);
     }
 }
 
@@ -210,6 +234,7 @@ bool MifareEngine::read_block(uint8_t block)
 
     if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
     {
+        LEDBuzzer(&reader, LED_YELLOW_ON);
         reset_data();
 
         status = Mf_Classic_Read_Block(&reader, true, block, data, auth_KeyA, 0);
@@ -222,6 +247,7 @@ bool MifareEngine::read_block(uint8_t block)
         {
             qDebug() << "[READ] Fail, status = " << status;
         }
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
     }
     else
     {
@@ -229,7 +255,10 @@ bool MifareEngine::read_block(uint8_t block)
     }
 
     if (!result_status)
+    {
         mifare_engine_status = MIFARE_ENG_ERROR;
+        LEDBuzzer(&reader, LED_RED_ON);
+    }
 
     return result_status;
 }
@@ -244,6 +273,7 @@ bool MifareEngine::write_block_str(QString value, uint8_t block)
 
     if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
     {
+        LEDBuzzer(&reader, LED_YELLOW_ON);
         QByteArray temp_buffer_array = value.toUtf8();
         unsigned char* temp_buffer_char = reinterpret_cast<unsigned char *>(temp_buffer_array.data());
         for(int i = 0; i < value.size(); i++)
@@ -263,6 +293,7 @@ bool MifareEngine::write_block_str(QString value, uint8_t block)
             qDebug() << "[WRITE] Fail, status = " << status;
 
         reset_data();
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
     }
     else
     {
@@ -270,7 +301,11 @@ bool MifareEngine::write_block_str(QString value, uint8_t block)
     }
 
     if (!result_status)
+    {
         mifare_engine_status = MIFARE_ENG_ERROR;
+        LEDBuzzer(&reader, LED_RED_ON);
+    }
+
 
     return result_status;
 }
@@ -285,6 +320,7 @@ bool MifareEngine::write_block_int(uint8_t value, uint8_t block)
 
     if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
     {
+        LEDBuzzer(&reader, LED_YELLOW_ON);
         status = Mf_Classic_Write_Value(&reader, true, block, value, auth_KeyB, 1);
 
         if(status == MI_OK)
@@ -294,12 +330,17 @@ bool MifareEngine::write_block_int(uint8_t value, uint8_t block)
         }
         else
             qDebug() << "[WRITE] Fail, status = " << status;
+        
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
     }
     else
         qDebug() << "[WRITE] No Tag to write";
 
     if (!result_status)
+    {
         mifare_engine_status = MIFARE_ENG_ERROR;
+        LEDBuzzer(&reader, LED_RED_ON);
+    }
 
     return result_status;
 }
@@ -370,16 +411,22 @@ bool MifareEngine::read_cpt(QString& cpt_value)
 
     if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
     {
-        uint32_t val;
-        Mf_Classic_Read_Value(&reader, true, 14, &val, auth_KeyD, 1);
+        LEDBuzzer(&reader, LED_YELLOW_ON);
+        uint32_t val = 0;
+        status = Mf_Classic_Read_Value(&reader, true, 14, &val, auth_KeyD, 1);
+        if(status == MI_OK)
+            read_success = true;
 
         cpt_value = QString::number(val);
-        read_success = true;
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
     }
 
     if (!read_success)
+    {
         mifare_engine_status = MIFARE_ENG_ERROR;
-
+        LEDBuzzer(&reader, LED_RED_ON);
+    }
+    
     return read_success;
 }
 
@@ -391,13 +438,20 @@ bool MifareEngine::increment_cpt()
 
     if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
     {
+        LEDBuzzer(&reader, LED_YELLOW_ON);
         bool increment_status = false;
 
         increment_status = increment_status && (Mf_Classic_Increment_Value(&reader, true, 14, 1, 13, auth_KeyD, 1) == MI_OK);
         increment_status = increment_status && (Mf_Classic_Restore_Value(&reader, true, 13, 14, auth_KeyD, 1) == MI_OK);
 
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
+
         if(!increment_status)
+        {
             mifare_engine_status = MIFARE_ENG_ERROR;
+            LEDBuzzer(&reader, LED_RED_ON);
+        }
+            
     }
 
     return mifare_engine_status == MIFARE_ENG_CONNECTED_READY;
@@ -411,13 +465,19 @@ bool MifareEngine::decrement_cpt()
 
     if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
     {
+        LEDBuzzer(&reader, LED_YELLOW_ON);
         bool decrement_status = false;
 
         decrement_status = decrement_status && (Mf_Classic_Decrement_Value(&reader, true, 14, 1, 13, auth_KeyD, 1) == MI_OK);
         decrement_status = decrement_status && (Mf_Classic_Restore_Value(&reader, true, 13, 14, auth_KeyD, 1) == MI_OK);
 
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
+
         if(!decrement_status)
+        {
             mifare_engine_status = MIFARE_ENG_ERROR;
+            LEDBuzzer(&reader, LED_RED_ON);
+        }
     }
 
     return mifare_engine_status == MIFARE_ENG_CONNECTED_READY;
@@ -433,6 +493,9 @@ bool MifareEngine::format()
 
     if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
     {
+        LEDBuzzer(&reader, LED_RED_ON);
+        LEDBuzzer(&reader, LED_YELLOW_ON);
+
         res = true;
 
         // Valeur par défaut du secteur 2
@@ -453,8 +516,12 @@ bool MifareEngine::format()
         if(Mf_Classic_UpdadeAccessBlock(&reader, true, 3, 0, key_ff, key_ff, 0b000, 0b000, 0b000, 0b000, false) != MI_OK)
             res = false;
 
+        LEDBuzzer(&reader, LED_YELLOW_OFF);
+
         if(!res)
             mifare_engine_status = MIFARE_ENG_ERROR;
+        else
+            LEDBuzzer(&reader, LED_RED_OFF);
     }
 
     return  res;
