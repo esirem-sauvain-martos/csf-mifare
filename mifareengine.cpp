@@ -77,6 +77,26 @@ void MifareEngine::init()
             return;
         }
 
+        // Key FF
+        status = Mf_Classic_LoadKey(&reader, true, key_ff, 2);
+        if (status != MI_OK)
+        {
+            qDebug() << "Key FF load failed";
+            mifare_engine_status = MIFARE_ENG_KEY_LOADING_FAIL;
+            close();
+            return;
+        }
+
+        // Key FF
+        status = Mf_Classic_LoadKey(&reader, false, key_ff, 2);
+        if (status != MI_OK)
+        {
+            qDebug() << "Key FF load failed";
+            mifare_engine_status = MIFARE_ENG_KEY_LOADING_FAIL;
+            close();
+            return;
+        }
+
         // Alimentation
         RF_Power_Control(&reader, true, 0);
         mifare_engine_status = MIFARE_ENG_POWERED;
