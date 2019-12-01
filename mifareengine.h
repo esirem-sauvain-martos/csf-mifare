@@ -50,7 +50,7 @@ public:
     bool enrol();
     bool format();
 
-    int get_mifare_engine_status();
+    int get_mifare_engine_status() const;
 
     bool read_cpt(QString& cpt_value);
     bool increment_cpt();

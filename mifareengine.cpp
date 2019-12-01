@@ -460,7 +460,7 @@ bool MifareEngine::format()
     return  res;
 }
 
-int MifareEngine::get_mifare_engine_status()
+int MifareEngine::get_mifare_engine_status() const
 {
     return mifare_engine_status;
 }
