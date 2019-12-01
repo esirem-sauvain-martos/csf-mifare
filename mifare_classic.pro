@@ -29,6 +29,7 @@ SOURCES += \
         mifareengine.cpp
 
 HEADERS += \
+        ODALID.h \
         mifareenginestatus.h \
         mifaregui.h \
         mifareengine.h

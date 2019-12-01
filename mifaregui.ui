@@ -74,7 +74,7 @@
        <item>
         <widget class="QPushButton" name="refreshButton">
          <property name="text">
-          <string>Refresh</string>
+          <string>Actualiser</string>
          </property>
         </widget>
        </item>
@@ -124,9 +124,9 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QPushButton" name="formatButton">
+          <widget class="QPushButton" name="connectButton">
            <property name="text">
-            <string>Formater</string>
+            <string>Connexion</string>
            </property>
           </widget>
          </item>
@@ -134,6 +134,13 @@
           <widget class="QPushButton" name="enrolButton">
            <property name="text">
             <string>Enrôler</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="formatButton">
+           <property name="text">
+            <string>Formater</string>
            </property>
           </widget>
          </item>

@@ -30,6 +30,7 @@ private slots:
     void on_incrementButton_clicked();
     void on_decrementButton_clicked();
     void on_formatButton_clicked();
+    void on_connectButton_clicked();
 };
 
 #endif // MIFAREGUI_H

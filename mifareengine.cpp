@@ -18,10 +18,11 @@ MifareEngine::MifareEngine()
     reader.Type = ReaderCDC;
     reader.device = 0;
     mifare_engine_status = MIFARE_ENG_INIT_READY;
+}
 
-    // Initialisation de la connexion
-    init();
-    qDebug() << "Init Done";
+MifareEngine::~MifareEngine()
+{
+    close();
 }
 
 void MifareEngine::init()
@@ -109,14 +110,38 @@ void MifareEngine::init()
                 qDebug() << "Tag appears to be a Mifare classic 4k";
             }
             mifare_engine_status = MIFARE_ENG_CONNECTED_READY;
-
-            // Ecriture des noms des applications dans les blocs appropiés
-            QString application_name = "Identite";
-            write_block_str(application_name, 8);
-            application_name = "Porte Monnaie";
-            write_block_str(application_name, 12);
         }
     }
+}
+
+bool MifareEngine::enrol()
+{
+   bool res = true;
+
+    if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
+    {
+        // Définition des rèlges pour le secteur 2
+        if(Mf_Classic_UpdadeAccessBlock(&reader, true, 2, 0, key_A, key_B, 0b100, 0b100, 0b100, 0b011, false) != MI_OK)
+            res = false;
+
+        // Définition des rèlges pour le secteur 3
+        if(Mf_Classic_UpdadeAccessBlock(&reader, true, 3, 0, key_C, key_D, 0b100, 0b110, 0b011, 0b011, false) != MI_OK)
+            res = false;
+
+        // Ecriture des blocs par défaut de l'application Identite
+        res = res && write_block_str("Identite", 8);
+        res = res && write_block_str("Default Name", 9);
+        res = res && write_block_str("Default Name", 10);
+
+        // Ecriture des blocs par défaut de l'application Porte Monnaie
+        res = res && write_block_str("Porte Monnaie", 12);
+        res = res && write_block_int(0, 13);
+        res = res && write_block_int(0, 14);
+    }
+    else
+        res = 0;
+
+  return res;
 }
 
 void MifareEngine::tag_halt()
@@ -180,7 +205,7 @@ bool MifareEngine::read_block(uint8_t block)
     }
     else
     {
-        qDebug() << "[READ] Tag not connected";
+        qDebug() << "[READ] No Tag to read";
     }
 
     return result_status;
@@ -189,7 +214,7 @@ bool MifareEngine::read_block(uint8_t block)
 bool MifareEngine::write_block_str(QString value, uint8_t block)
 {
     /*
-        Permet d'ecrire sur le bloc de la carte en paramètre
+        Permet d'ecrire une chaine sur le bloc de la carte en paramètre
     */
 
     bool result_status = false;
@@ -218,8 +243,34 @@ bool MifareEngine::write_block_str(QString value, uint8_t block)
     }
     else
     {
-        qDebug() << "[WRITE] Tag not connected";
+        qDebug() << "[WRITE] No Tag to write";
     }
+
+    return result_status;
+}
+
+bool MifareEngine::write_block_int(uint8_t value, uint8_t block)
+{
+    /*
+        Permet d'ecrire un entier sur le bloc de la carte en paramètre
+    */
+
+    bool result_status = false;
+
+    if(mifare_engine_status == MIFARE_ENG_CONNECTED_READY)
+    {
+        status = Mf_Classic_Write_Value(&reader, true, block, value, auth_KeyB, 1);
+
+        if(status == MI_OK)
+        {
+            qDebug("[WRITE] = %s", data);
+            result_status = true;
+        }
+        else
+            qDebug() << "[WRITE] Fail, status = " << status;
+    }
+    else
+        qDebug() << "[WRITE] No Tag to write";
 
     return result_status;
 }
@@ -342,12 +393,23 @@ bool MifareEngine::format()
     {
         res = true;
 
-        QString blank = "";
-        uint8_t index_to_clear[] = {8, 9, 10, 12, 13, 14};
-        for(int i = 0; i < 6; i++)
-        {
-            res = res && write_block_str(blank, index_to_clear[i]);
-        }
+        // Valeur par défaut du secteur 2
+        res = res && write_block_str("", 8);
+        res = res && write_block_str("", 9);
+        res = res && write_block_str("", 10);
+
+        // Valeur par défaut du secteur 3
+        res = res && write_block_str("", 12);
+        res = res && write_block_int(0, 13);
+        res = res && write_block_int(0, 14);
+
+        // Définition des rèlges par défaut pour le secteur 2
+        if(Mf_Classic_UpdadeAccessBlock(&reader, true, 2, 0, key_ff, key_ff, 0b000, 0b000, 0b000, 0b000, false) != MI_OK)
+            res = false;
+
+        // Définition des rèlges par défaut pour le secteur 3
+        if(Mf_Classic_UpdadeAccessBlock(&reader, true, 3, 0, key_ff, key_ff, 0b000, 0b000, 0b000, 0b000, false) != MI_OK)
+            res = false;
     }
 
     return  res;

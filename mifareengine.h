@@ -36,6 +36,7 @@ private:
 
     bool read_block(uint8_t block);
     bool write_block_str(QString value, uint8_t block);
+    bool write_block_int(uint8_t value, uint8_t block);
     void reset_data();
 
     void done();
@@ -46,6 +47,8 @@ public:
     MifareEngine();
     ~MifareEngine();
     void init();
+    bool enrol();
+
     int get_mifare_engine_status();
 
     bool read_cpt(QString& cpt_value);

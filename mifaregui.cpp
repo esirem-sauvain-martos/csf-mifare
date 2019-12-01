@@ -41,6 +41,16 @@ void MifareGUI::on_refreshButton_clicked()
     MifareGUI::refresh_ui_data();
 }
 
+void MifareGUI::on_connectButton_clicked()
+{
+    log("Connection...");
+    mifare_engine->init();
+    if(mifare_engine->get_mifare_engine_status() == MIFARE_ENG_CONNECTED_READY)
+        log("Connected !");
+    else
+        log("Connection failed");
+}
+
 void MifareGUI::on_enrolButton_clicked()
 {
     log("Enroling...");
